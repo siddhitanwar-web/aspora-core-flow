@@ -156,6 +156,16 @@ export default function HiringPage() {
           <TabsTrigger value="candidates">Candidates ({candidates.length})</TabsTrigger>
           <TabsTrigger value="offers">Offers ({offers.length})</TabsTrigger>
         </TabsList>
+        
+        {/* Link to Candidate Board */}
+        <div className="flex justify-end mb-4 -mt-2">
+          <Link to="/hiring/board">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Users className="w-4 h-4" />
+              Open Candidate Board
+            </Button>
+          </Link>
+        </div>
 
         <TabsContent value="roles">
           <motion.div

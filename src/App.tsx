@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/layout/MainLayout";
 import HomePage from "./pages/HomePage";
 import HiringPage from "./pages/HiringPage";
+import CandidateBoardPage from "./pages/CandidateBoardPage";
+import PreOnboardingPage from "./pages/PreOnboardingPage";
 import EmployeesPage from "./pages/EmployeesPage";
+import EmployeeDetailPage from "./pages/EmployeeDetailPage";
 import PerformancePage from "./pages/PerformancePage";
 import KnowledgePage from "./pages/KnowledgePage";
 import LearningPage from "./pages/LearningPage";
@@ -30,8 +33,12 @@ const App = () => (
             <Route path="/" element={<HomePage />} />
             <Route path="/hiring" element={<HiringPage />} />
             <Route path="/hiring/:id" element={<HiringPage />} />
+            <Route path="/hiring/board" element={<CandidateBoardPage />} />
+            <Route path="/hiring/candidate/:id" element={<HiringPage />} />
+            <Route path="/preonboarding" element={<PreOnboardingPage />} />
+            <Route path="/preonboarding/:candidateId" element={<PreOnboardingPage />} />
             <Route path="/employees" element={<EmployeesPage />} />
-            <Route path="/employees/:id" element={<EmployeesPage />} />
+            <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/performance" element={<PerformancePage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/learning" element={<LearningPage />} />
