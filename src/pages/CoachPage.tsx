@@ -72,7 +72,7 @@ Would you like to role-play a specific conversation? I can provide feedback on y
 - Mentored 2 junior PMs
 
 **Goals Status:**
-- 3 of 4 OKRs on track
+- 3 of 4 KPIs on track
 - 1 at-risk (needs discussion)
 
 **Suggested Talking Points:**

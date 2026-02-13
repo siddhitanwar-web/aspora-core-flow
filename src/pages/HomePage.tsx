@@ -170,7 +170,9 @@ export default function HomePage() {
                 </div>
                 <div className="flex gap-2 mt-3">
                   <Button size="sm" className="flex-1 h-8">Approve</Button>
-                  <Button size="sm" variant="outline" className="flex-1 h-8">Review</Button>
+                  <Button size="sm" variant="outline" className="flex-1 h-8" asChild>
+                    <Link to="/governance">Review</Link>
+                  </Button>
                 </div>
               </div>
             ))}

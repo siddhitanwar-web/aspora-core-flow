@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   GraduationCap,
@@ -138,9 +139,11 @@ export default function LearningPage() {
                     ))}
                   </div>
 
-                  <Button className="w-full gap-2">
-                    <Play className="w-4 h-4" />
-                    Continue Learning
+                  <Button className="w-full gap-2" asChild>
+                    <Link to="/learning">
+                      <Play className="w-4 h-4" />
+                      Continue Learning
+                    </Link>
                   </Button>
                 </div>
               </motion.div>
@@ -192,9 +195,11 @@ export default function LearningPage() {
                 </div>
               </div>
 
-              <Button className="w-full gap-2">
-                <Sparkles className="w-4 h-4" />
-                Continue Conversation
+              <Button className="w-full gap-2" asChild>
+                <Link to="/coach">
+                  <Sparkles className="w-4 h-4" />
+                  Continue Conversation
+                </Link>
               </Button>
             </motion.div>
 

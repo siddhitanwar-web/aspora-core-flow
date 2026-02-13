@@ -20,6 +20,7 @@ import DashboardsPage from "./pages/DashboardsPage";
 import GenePage from "./pages/GenePage";
 import CoachPage from "./pages/CoachPage";
 import SettingsPage from "./pages/SettingsPage";
+import SurveysPage from "./pages/SurveysPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/employees" element={<EmployeesPage />} />
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/performance" element={<PerformancePage />} />
+            <Route path="/surveys" element={<SurveysPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/learning" element={<LearningPage />} />
             <Route path="/governance" element={<GovernancePage />} />

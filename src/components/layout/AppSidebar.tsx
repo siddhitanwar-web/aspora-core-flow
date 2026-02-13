@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Sparkles,
   MessageSquare,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Hiring', href: '/hiring', icon: Briefcase },
   { name: 'Employees', href: '/employees', icon: Users },
   { name: 'Performance', href: '/performance', icon: Target },
+  { name: 'Surveys', href: '/surveys', icon: ClipboardList },
   { name: 'Knowledge', href: '/knowledge', icon: BookOpen },
   { name: 'Learning', href: '/learning', icon: GraduationCap },
   { name: 'Governance', href: '/governance', icon: Shield },

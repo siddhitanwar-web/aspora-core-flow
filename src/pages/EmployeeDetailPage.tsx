@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { StatusBadge } from '@/components/common/StatusBadge';
-import { employees, goals, reviews, learningPaths } from '@/data/mockData';
+import { employees, kpis, reviews, learningPaths } from '@/data/mockData';
 import { employeeDocuments, type EmployeeDocument } from '@/data/onboardingData';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,7 +64,7 @@ export default function EmployeeDetailPage() {
 
   const employee = employees.find(e => e.id === id) || employees[0];
   const employeeDocs = employeeDocuments[employee.id] || [];
-  const employeeGoals = goals.filter(g => g.employeeId === employee.id);
+  const employeeGoals = kpis.filter(g => g.employeeId === employee.id);
   const employeeReviews = reviews.filter(r => r.employeeId === employee.id);
   const employeeLearning = learningPaths.slice(0, 2);
 
@@ -246,7 +246,7 @@ export default function EmployeeDetailPage() {
               className="aspora-card"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">Current Goals</h3>
+                <h3 className="font-medium">Active KPIs</h3>
                 <Link to="/performance" className="text-sm text-primary hover:underline">View All</Link>
               </div>
               <div className="space-y-4">
@@ -259,7 +259,7 @@ export default function EmployeeDetailPage() {
                     <ProgressBar value={goal.progress} size="sm" variant="primary" />
                   </div>
                 )) : (
-                  <p className="text-sm text-muted-foreground py-4 text-center">No active goals</p>
+                  <p className="text-sm text-muted-foreground py-4 text-center">No active KPIs</p>
                 )}
               </div>
             </motion.div>

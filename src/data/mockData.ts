@@ -59,16 +59,24 @@ export interface Offer {
   createdDate: string;
 }
 
-export interface Goal {
+export interface KPI {
   id: string;
   employeeId: string;
   title: string;
   description: string;
+  metric: 'number' | 'percentage' | 'currency';
+  targetValue: number;
+  currentValue: number;
+  weight: number;
+  owner: string;
   type: 'individual' | 'team' | 'company';
   progress: number;
   dueDate: string;
-  status: 'on-track' | 'at-risk' | 'completed' | 'overdue';
+  status: 'on-track' | 'at-risk' | 'behind' | 'completed';
 }
+
+// Keep Goal as alias for backward compat
+export type Goal = KPI;
 
 export interface Review {
   id: string;
@@ -78,8 +86,54 @@ export interface Review {
   reviewerName: string;
   cycle: string;
   status: 'pending' | 'self-review' | 'manager-review' | 'calibration' | 'completed';
+  aiStatus?: 'not-generated' | 'ai-draft' | 'manager-reviewed' | 'approved';
   rating?: number;
   dueDate: string;
+}
+
+export interface AIReviewScorecard {
+  employeeId: string;
+  overallRating: number;
+  categories: {
+    name: string;
+    score: number;
+    reasoning: string;
+  }[];
+  strengths: string[];
+  improvements: string[];
+  summary: string;
+  dataSources: {
+    meetingNotes: number;
+    kpiProgress: string;
+    contributions: string;
+    interviews: number;
+    peerFeedback: number;
+    learningProgress: string;
+  };
+}
+
+export interface MeetingNote {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  date: string;
+  attendees: string[];
+  template: 'weekly-checkin' | 'monthly-review' | 'career-discussion';
+  topics: string[];
+  actionItems: { text: string; done: boolean }[];
+  sentiment: 'positive' | 'neutral' | 'concerned';
+}
+
+export interface ENPSSurvey {
+  id: string;
+  title: string;
+  status: 'active' | 'scheduled' | 'completed';
+  frequency: 'monthly' | 'quarterly';
+  responses: number;
+  totalEmployees: number;
+  score: number;
+  date: string;
+  departmentScores: { department: string; score: number }[];
 }
 
 export interface Document {
@@ -367,49 +421,72 @@ export const offers: Offer[] = [
   },
 ];
 
-// Mock Goals
-export const goals: Goal[] = [
+// Mock KPIs (formerly Goals/OKRs)
+export const kpis: KPI[] = [
   {
-    id: 'goal-001',
+    id: 'kpi-001',
     employeeId: 'emp-001',
     title: 'Launch v2.0 Platform Features',
     description: 'Successfully launch all planned features for v2.0 release',
+    metric: 'percentage',
+    targetValue: 100,
+    currentValue: 72,
+    weight: 30,
+    owner: 'Sarah Chen',
     type: 'individual',
     progress: 72,
     dueDate: '2024-03-31',
     status: 'on-track',
   },
   {
-    id: 'goal-002',
+    id: 'kpi-002',
     employeeId: 'emp-002',
     title: 'Reduce Infrastructure Costs by 20%',
     description: 'Optimize cloud infrastructure to reduce monthly costs',
+    metric: 'currency',
+    targetValue: 50000,
+    currentValue: 22500,
+    weight: 25,
+    owner: 'James Wilson',
     type: 'team',
     progress: 45,
     dueDate: '2024-06-30',
     status: 'on-track',
   },
   {
-    id: 'goal-003',
+    id: 'kpi-003',
     employeeId: 'emp-003',
     title: 'Design System Documentation',
     description: 'Complete comprehensive documentation for design system',
+    metric: 'percentage',
+    targetValue: 100,
+    currentValue: 90,
+    weight: 20,
+    owner: 'Priya Sharma',
     type: 'individual',
     progress: 90,
     dueDate: '2024-02-28',
     status: 'on-track',
   },
   {
-    id: 'goal-004',
+    id: 'kpi-004',
     employeeId: 'emp-004',
     title: 'Team Growth & Development',
     description: 'Hire 3 engineers and establish mentorship program',
+    metric: 'number',
+    targetValue: 3,
+    currentValue: 1,
+    weight: 25,
+    owner: 'Marcus Johnson',
     type: 'team',
     progress: 33,
     dueDate: '2024-04-30',
     status: 'at-risk',
   },
 ];
+
+// Backward compat alias
+export const goals = kpis;
 
 // Mock Reviews
 export const reviews: Review[] = [
@@ -421,6 +498,7 @@ export const reviews: Review[] = [
     reviewerName: 'Michael Torres',
     cycle: 'Q1 2024',
     status: 'self-review',
+    aiStatus: 'ai-draft',
     dueDate: '2024-02-15',
   },
   {
@@ -431,6 +509,7 @@ export const reviews: Review[] = [
     reviewerName: 'Emily Rodriguez',
     cycle: 'Q1 2024',
     status: 'manager-review',
+    aiStatus: 'manager-reviewed',
     rating: 4.8,
     dueDate: '2024-02-15',
   },
@@ -442,7 +521,215 @@ export const reviews: Review[] = [
     reviewerName: 'David Kim',
     cycle: 'Q1 2024',
     status: 'pending',
+    aiStatus: 'not-generated',
     dueDate: '2024-02-15',
+  },
+  {
+    id: 'review-004',
+    employeeId: 'emp-004',
+    employeeName: 'Marcus Johnson',
+    reviewerId: 'emp-004',
+    reviewerName: 'Emily Rodriguez',
+    cycle: 'Q1 2024',
+    status: 'completed',
+    aiStatus: 'approved',
+    rating: 4.6,
+    dueDate: '2024-02-15',
+  },
+  {
+    id: 'review-005',
+    employeeId: 'emp-005',
+    employeeName: 'Ana Martinez',
+    reviewerId: 'emp-004',
+    reviewerName: 'Rachel Green',
+    cycle: 'Q1 2024',
+    status: 'pending',
+    aiStatus: 'not-generated',
+    dueDate: '2024-02-15',
+  },
+];
+
+// Mock AI Review Scorecards
+export const aiScorecards: AIReviewScorecard[] = [
+  {
+    employeeId: 'emp-001',
+    overallRating: 4.5,
+    categories: [
+      { name: 'Technical Skills', score: 4.2, reasoning: 'Demonstrates strong product analytics and data-driven decision making. Consistently leverages quantitative analysis to inform product strategy.' },
+      { name: 'Collaboration', score: 4.8, reasoning: 'Exceptional cross-functional collaboration. Successfully partnered with Engineering, Design, and Sales teams on v2.0 launch.' },
+      { name: 'Leadership', score: 4.3, reasoning: 'Effectively mentored 2 junior PMs. Growing influence on team processes and strategic direction.' },
+      { name: 'Impact', score: 4.7, reasoning: 'v2.0 features contributed to 15% improvement in user retention. Successfully delivered high-priority initiatives on schedule.' },
+      { name: 'Growth', score: 4.5, reasoning: '78% completion on Advanced PM learning path. Actively seeking feedback and development opportunities.' },
+    ],
+    strengths: [
+      'Outstanding cross-functional leadership on the v2.0 platform initiative',
+      'Consistently data-driven approach to product decisions',
+      'Strong mentorship of junior product managers',
+      'Proactive stakeholder communication and alignment',
+    ],
+    improvements: [
+      'Develop deeper technical architecture understanding for more effective engineering partnership',
+      'Expand strategic thinking from feature-level to portfolio-level vision',
+      'Increase participation in company-wide initiatives beyond product scope',
+    ],
+    summary: 'Sarah has had an exceptional quarter, driving the v2.0 platform launch while maintaining strong team relationships and mentoring junior PMs. Her data-driven approach and stakeholder management skills are key strengths. To reach the next level, she should focus on deepening technical knowledge and expanding her strategic scope beyond individual product areas.',
+    dataSources: {
+      meetingNotes: 12,
+      kpiProgress: '4/5 KPIs on track',
+      contributions: '47 tickets closed, 3 epics contributed to',
+      interviews: 8,
+      peerFeedback: 5,
+      learningProgress: '78% path completed',
+    },
+  },
+  {
+    employeeId: 'emp-002',
+    overallRating: 4.8,
+    categories: [
+      { name: 'Technical Skills', score: 5.0, reasoning: 'Industry-leading expertise in infrastructure. Designed and implemented critical systems serving millions of requests.' },
+      { name: 'Collaboration', score: 4.5, reasoning: 'Actively contributes to engineering-wide architecture decisions. Strong partnership with platform team.' },
+      { name: 'Leadership', score: 4.7, reasoning: 'De facto technical leader for infrastructure. Mentors multiple engineers across teams.' },
+      { name: 'Impact', score: 5.0, reasoning: 'Infrastructure cost reduction initiative on track to save $500K annually. Zero downtime during Q4 migration.' },
+      { name: 'Growth', score: 4.8, reasoning: '92% learning path completion. Actively expanding into ML infrastructure domain.' },
+    ],
+    strengths: [
+      'World-class infrastructure engineering and system design',
+      'Significant cost optimization impact ($500K projected savings)',
+      'Technical mentorship that elevates entire engineering org',
+      'Reliable delivery with zero-downtime track record',
+    ],
+    improvements: [
+      'Could increase visibility of infrastructure wins to broader organization',
+      'Consider more active participation in hiring and interview process',
+      'Develop written communication for broader technical influence (blog posts, RFCs)',
+    ],
+    summary: 'James continues to be one of our strongest technical contributors. His infrastructure cost reduction initiative alone justifies his impact rating. He combines deep technical expertise with strong mentorship, making the entire engineering team stronger. Growth areas include increasing organizational visibility and written communication.',
+    dataSources: {
+      meetingNotes: 15,
+      kpiProgress: '3/4 KPIs on track',
+      contributions: '62 tickets closed, 5 epics contributed to',
+      interviews: 12,
+      peerFeedback: 7,
+      learningProgress: '92% path completed',
+    },
+  },
+];
+
+// Mock Meeting Notes
+export const meetingNotes: MeetingNote[] = [
+  {
+    id: 'note-001',
+    employeeId: 'emp-001',
+    employeeName: 'Sarah Chen',
+    date: '2024-01-29',
+    attendees: ['Sarah Chen', 'Michael Torres'],
+    template: 'weekly-checkin',
+    topics: ['v2.0 launch timeline', 'Team capacity planning', 'Q1 KPI review'],
+    actionItems: [
+      { text: 'Finalize v2.0 feature list by Friday', done: true },
+      { text: 'Schedule design review for new onboarding flow', done: false },
+      { text: 'Update Q1 KPI tracking dashboard', done: false },
+    ],
+    sentiment: 'positive',
+  },
+  {
+    id: 'note-002',
+    employeeId: 'emp-002',
+    employeeName: 'James Wilson',
+    date: '2024-01-28',
+    attendees: ['James Wilson', 'Emily Rodriguez'],
+    template: 'monthly-review',
+    topics: ['Infrastructure cost reduction progress', 'ML platform roadmap', 'Team hiring'],
+    actionItems: [
+      { text: 'Complete cost analysis report', done: true },
+      { text: 'Interview 2 ML engineer candidates', done: true },
+      { text: 'Draft RFC for new caching layer', done: false },
+    ],
+    sentiment: 'positive',
+  },
+  {
+    id: 'note-003',
+    employeeId: 'emp-004',
+    employeeName: 'Marcus Johnson',
+    date: '2024-01-27',
+    attendees: ['Marcus Johnson', 'Emily Rodriguez'],
+    template: 'career-discussion',
+    topics: ['Frontend team growth', 'Hiring challenges', 'Career development goals'],
+    actionItems: [
+      { text: 'Revise job description for senior role', done: false },
+      { text: 'Set up mentorship program kickoff', done: false },
+      { text: 'Complete leadership training module', done: true },
+    ],
+    sentiment: 'concerned',
+  },
+  {
+    id: 'note-004',
+    employeeId: 'emp-003',
+    employeeName: 'Priya Sharma',
+    date: '2024-01-26',
+    attendees: ['Priya Sharma', 'David Kim'],
+    template: 'weekly-checkin',
+    topics: ['Design system progress', 'Component library updates', 'Accessibility audit'],
+    actionItems: [
+      { text: 'Complete button component variants', done: true },
+      { text: 'Run accessibility audit on new components', done: false },
+    ],
+    sentiment: 'positive',
+  },
+];
+
+// Mock eNPS Surveys
+export const enpsSurveys: ENPSSurvey[] = [
+  {
+    id: 'enps-001',
+    title: 'Q1 2024 Employee Pulse',
+    status: 'completed',
+    frequency: 'quarterly',
+    responses: 210,
+    totalEmployees: 248,
+    score: 42,
+    date: '2024-01-15',
+    departmentScores: [
+      { department: 'Engineering', score: 48 },
+      { department: 'Product', score: 45 },
+      { department: 'Design', score: 52 },
+      { department: 'Sales', score: 35 },
+      { department: 'People', score: 55 },
+    ],
+  },
+  {
+    id: 'enps-002',
+    title: 'Q4 2023 Employee Pulse',
+    status: 'completed',
+    frequency: 'quarterly',
+    responses: 195,
+    totalEmployees: 240,
+    score: 38,
+    date: '2023-10-15',
+    departmentScores: [
+      { department: 'Engineering', score: 42 },
+      { department: 'Product', score: 40 },
+      { department: 'Design', score: 48 },
+      { department: 'Sales', score: 30 },
+      { department: 'People', score: 50 },
+    ],
+  },
+  {
+    id: 'enps-003',
+    title: 'February 2024 Monthly Pulse',
+    status: 'active',
+    frequency: 'monthly',
+    responses: 156,
+    totalEmployees: 248,
+    score: 45,
+    date: '2024-02-01',
+    departmentScores: [
+      { department: 'Engineering', score: 50 },
+      { department: 'Product', score: 47 },
+      { department: 'Design', score: 55 },
+      { department: 'Sales', score: 38 },
+      { department: 'People', score: 58 },
+    ],
   },
 ];
 
