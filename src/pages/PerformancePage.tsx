@@ -104,6 +104,9 @@ export default function PerformancePage() {
             <MessageSquare className="w-3 h-3" />
             1:1 Notes
           </TabsTrigger>
+          <TabsTrigger value="feedback">Feedback</TabsTrigger>
+          <TabsTrigger value="nine-box">9-Box Grid</TabsTrigger>
+          <TabsTrigger value="skills">Skills Matrix</TabsTrigger>
           <TabsTrigger value="surveys" className="gap-1">
             <BarChart3 className="w-3 h-3" />
             Surveys
@@ -292,6 +295,121 @@ export default function PerformancePage() {
 
         <TabsContent value="surveys">
           <SurveysTab />
+        </TabsContent>
+
+        {/* Continuous Feedback */}
+        <TabsContent value="feedback">
+          <div className="space-y-4">
+            <div className="aspora-card">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-foreground">Continuous Feedback</h2>
+                <Button className="gap-2" onClick={() => toast({ title: "Feedback Sent", description: "Your feedback has been recorded." })}>
+                  <Plus className="w-4 h-4" /> Give Feedback
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { from: 'Marcus Johnson', to: 'Sarah Chen', feedback: 'Great job leading the v2.0 planning sessions. Very structured approach.', date: 'Jan 28, 2024', type: 'praise' },
+                  { from: 'Sarah Chen', to: 'Kevin Park', feedback: 'Excellent onboarding progress. Already contributing to code reviews.', date: 'Jan 25, 2024', type: 'praise' },
+                  { from: 'Emily Rodriguez', to: 'James Wilson', feedback: 'Consider documenting your infrastructure decisions in RFCs for broader team visibility.', date: 'Jan 22, 2024', type: 'constructive' },
+                ].map((fb, i) => (
+                  <div key={i} className="p-4 rounded-lg bg-muted/30 border border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground text-sm">{fb.from}</span>
+                        <span className="text-muted-foreground text-xs">→</span>
+                        <span className="font-medium text-foreground text-sm">{fb.to}</span>
+                      </div>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${fb.type === 'praise' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                        {fb.type === 'praise' ? '👏 Praise' : '💡 Constructive'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground">{fb.feedback}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{fb.date}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* 9-Box Grid */}
+        <TabsContent value="nine-box">
+          <div className="aspora-card">
+            <h2 className="text-lg font-semibold text-foreground mb-6">9-Box Talent Grid</h2>
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                { label: 'Enigma', perf: 'Low', pot: 'High', employees: [], bg: 'bg-warning/10' },
+                { label: 'Growth Employee', perf: 'Medium', pot: 'High', employees: ['Kevin Park'], bg: 'bg-accent/10' },
+                { label: 'Star', perf: 'High', pot: 'High', employees: ['James Wilson'], bg: 'bg-success/10' },
+                { label: 'Underperformer', perf: 'Low', pot: 'Medium', employees: [], bg: 'bg-destructive/10' },
+                { label: 'Core Player', perf: 'Medium', pot: 'Medium', employees: ['Priya Sharma', 'Ana Martinez'], bg: 'bg-primary/5' },
+                { label: 'High Performer', perf: 'High', pot: 'Medium', employees: ['Sarah Chen', 'Marcus Johnson'], bg: 'bg-primary/10' },
+                { label: 'Risk', perf: 'Low', pot: 'Low', employees: [], bg: 'bg-destructive/5' },
+                { label: 'Average Performer', perf: 'Medium', pot: 'Low', employees: [], bg: 'bg-muted/50' },
+                { label: 'Trusted Professional', perf: 'High', pot: 'Low', employees: [], bg: 'bg-muted' },
+              ].map((box, i) => (
+                <div key={i} className={`p-4 rounded-lg ${box.bg} border border-border min-h-[120px]`}>
+                  <p className="text-xs font-medium text-foreground mb-2">{box.label}</p>
+                  <div className="space-y-1">
+                    {box.employees.map(name => (
+                      <span key={name} className="inline-block text-xs px-2 py-1 rounded bg-background/80 text-foreground mr-1 mb-1">{name}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">← Low Performance</div>
+              <div className="flex items-center gap-1">High Performance →</div>
+            </div>
+            <div className="flex justify-center mt-1 text-xs text-muted-foreground">↑ High Potential — Low Potential ↓</div>
+          </div>
+        </TabsContent>
+
+        {/* Skills Matrix */}
+        <TabsContent value="skills">
+          <div className="aspora-card">
+            <h2 className="text-lg font-semibold text-foreground mb-6">Skills Matrix</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-2 text-muted-foreground font-medium">Employee</th>
+                    {['Technical', 'Leadership', 'Communication', 'Strategy', 'Collaboration'].map(s => (
+                      <th key={s} className="text-center py-3 px-2 text-muted-foreground font-medium">{s}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.slice(0, 5).map(emp => (
+                    <tr key={emp.id} className="border-b border-border last:border-0">
+                      <td className="py-3 px-2">
+                        <Link to={`/employees/${emp.id}`} className="flex items-center gap-2">
+                          <img src={emp.avatar} alt={emp.name} className="w-7 h-7 rounded-full object-cover" />
+                          <span className="font-medium text-foreground">{emp.name}</span>
+                        </Link>
+                      </td>
+                      {[85, 72, 68, 55, 90].map((val, j) => {
+                        const adjusted = Math.min(100, val + (emp.performanceRating || 3) * 3 - j * 5);
+                        const color = adjusted >= 80 ? 'bg-success' : adjusted >= 60 ? 'bg-primary' : 'bg-warning';
+                        return (
+                          <td key={j} className="py-3 px-2 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
+                                <div className={`h-full rounded-full ${color}`} style={{ width: `${adjusted}%` }} />
+                              </div>
+                              <span className="text-xs text-muted-foreground w-8">{adjusted}%</span>
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="calibration">

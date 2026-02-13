@@ -11,6 +11,8 @@ import {
   ArrowUpRight,
   Grid3X3,
   List,
+  Network,
+  Users as UsersIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +41,7 @@ const item = {
 
 export default function EmployeesPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'org' | 'team'>('grid');
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const { toast } = useToast();
@@ -131,28 +133,117 @@ export default function EmployeesPage() {
             Filters
           </Button>
           <div className="flex items-center border border-border rounded-lg p-1">
-            <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setViewMode('grid')}
-            >
+            <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('grid')}>
               <Grid3X3 className="w-4 h-4" />
             </Button>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setViewMode('list')}
-            >
+            <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('list')}>
               <List className="w-4 h-4" />
+            </Button>
+            <Button variant={viewMode === 'org' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('org')}>
+              <Network className="w-4 h-4" />
+            </Button>
+            <Button variant={viewMode === 'team' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('team')}>
+              <UsersIcon className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Employee Grid/List */}
-      {viewMode === 'grid' ? (
+      {/* Employee Views */}
+      {viewMode === 'org' ? (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="aspora-card">
+          <h2 className="text-lg font-semibold text-foreground mb-6">Organization Chart</h2>
+          <div className="flex flex-col items-center gap-8">
+            {/* CEO Level */}
+            <div className="text-center">
+              <div className="inline-flex flex-col items-center p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                  <span className="text-sm font-bold text-primary">CEO</span>
+                </div>
+                <p className="font-medium text-foreground text-sm">Rachel Green</p>
+                <p className="text-xs text-muted-foreground">Chief Executive Officer</p>
+              </div>
+            </div>
+            <div className="w-px h-6 bg-border" />
+            {/* Department Heads */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {departments.map(dept => {
+                const deptEmployees = employees.filter(e => e.department === dept);
+                const manager = deptEmployees.find(e => e.level >= 'L5');
+                return (
+                  <div key={dept} className="flex flex-col items-center">
+                    <div className="p-4 rounded-xl bg-muted/30 border border-border text-center w-full">
+                      {manager ? (
+                        <Link to={`/employees/${manager.id}`}>
+                          <img src={manager.avatar} alt={manager.name} className="w-10 h-10 rounded-full mx-auto mb-2 object-cover" />
+                          <p className="font-medium text-foreground text-sm">{manager.name}</p>
+                        </Link>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-muted mx-auto mb-2" />
+                      )}
+                      <p className="text-xs text-muted-foreground">{dept}</p>
+                      <span className="text-xs aspora-badge-primary mt-1">{deptEmployees.length} people</span>
+                    </div>
+                    <div className="w-px h-4 bg-border" />
+                    <div className="space-y-1 w-full">
+                      {deptEmployees.filter(e => e !== manager).slice(0, 3).map(emp => (
+                        <Link key={emp.id} to={`/employees/${emp.id}`} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                          <img src={emp.avatar} alt={emp.name} className="w-6 h-6 rounded-full object-cover" />
+                          <span className="text-xs text-foreground truncate">{emp.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      ) : viewMode === 'team' ? (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+          {departments.map(dept => {
+            const deptEmployees = filteredEmployees.filter(e => e.department === dept);
+            if (deptEmployees.length === 0) return null;
+            return (
+              <div key={dept} className="aspora-card">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-foreground">{dept}</h3>
+                  <span className="aspora-badge-primary">{deptEmployees.length} members</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 text-muted-foreground font-medium">Employee</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Role</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Level</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Status</th>
+                        <th className="text-left py-2 text-muted-foreground font-medium">Learning</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deptEmployees.map(emp => (
+                        <tr key={emp.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                          <td className="py-3">
+                            <Link to={`/employees/${emp.id}`} className="flex items-center gap-3">
+                              <img src={emp.avatar} alt={emp.name} className="w-8 h-8 rounded-full object-cover" />
+                              <span className="font-medium text-foreground">{emp.name}</span>
+                            </Link>
+                          </td>
+                          <td className="py-3 text-muted-foreground">{emp.role}</td>
+                          <td className="py-3"><span className="aspora-badge-muted">{emp.level}</span></td>
+                          <td className="py-3"><StatusBadge status={emp.status} /></td>
+                          <td className="py-3">{emp.learningProgress !== undefined ? <ProgressBar value={emp.learningProgress} size="sm" variant="accent" /> : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+      ) : viewMode === 'grid' ? (
         <motion.div
           variants={container}
           initial="hidden"
