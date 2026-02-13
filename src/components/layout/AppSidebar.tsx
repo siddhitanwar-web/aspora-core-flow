@@ -16,6 +16,7 @@ import {
   Sparkles,
   MessageSquare,
   ClipboardList,
+  Leaf,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Surveys', href: '/surveys', icon: ClipboardList },
   { name: 'Knowledge', href: '/knowledge', icon: BookOpen },
   { name: 'Learning', href: '/learning', icon: GraduationCap },
+  { name: 'Recognition', href: '/recognition', icon: Leaf },
   { name: 'Governance', href: '/governance', icon: Shield },
   { name: 'Dashboards', href: '/dashboards', icon: BarChart3 },
 ];
