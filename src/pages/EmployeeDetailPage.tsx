@@ -20,6 +20,7 @@ import {
   MoreHorizontal,
   Edit,
   Briefcase,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -35,6 +36,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 const container = {
   hidden: { opacity: 0 },
@@ -61,6 +68,13 @@ const documentCategoryStyles: Record<string, { bg: string; text: string; icon: R
 export default function EmployeeDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [showUploadDoc, setShowUploadDoc] = useState(false);
+  const [showRoleChange, setShowRoleChange] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [showOffboarding, setShowOffboarding] = useState(false);
+  const { toast } = useToast();
 
   const employee = employees.find(e => e.id === id) || employees[0];
   const employeeDocs = employeeDocuments[employee.id] || [];
@@ -97,7 +111,7 @@ export default function EmployeeDetailPage() {
         title=""
         actions={
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setShowEditProfile(true)}>
               <Edit className="w-4 h-4" />
               Edit Profile
             </Button>
@@ -108,9 +122,9 @@ export default function EmployeeDetailPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Role Change</DropdownMenuItem>
-                <DropdownMenuItem>Transfer Team</DropdownMenuItem>
-                <DropdownMenuItem>Start Offboarding</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowRoleChange(true)}>Role Change</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowTransfer(true)}>Transfer Team</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowOffboarding(true)}>Start Offboarding</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -181,12 +195,7 @@ export default function EmployeeDetailPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="aspora-card text-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="aspora-card text-center">
           <div className="flex items-center justify-center gap-1 text-2xl font-bold text-primary">
             {employee.performanceRating ? (
               <>
@@ -199,30 +208,15 @@ export default function EmployeeDetailPage() {
           </div>
           <p className="text-xs text-muted-foreground mt-1">Performance Rating</p>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="aspora-card text-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="aspora-card text-center">
           <p className="text-2xl font-bold text-accent">{employeeGoals.length}</p>
           <p className="text-xs text-muted-foreground mt-1">Active Goals</p>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="aspora-card text-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="aspora-card text-center">
           <p className="text-2xl font-bold">{employeeDocs.length}</p>
           <p className="text-xs text-muted-foreground mt-1">Documents</p>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="aspora-card text-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="aspora-card text-center">
           <p className="text-2xl font-bold text-green-500">{employee.learningProgress || 0}%</p>
           <p className="text-xs text-muted-foreground mt-1">Learning Progress</p>
         </motion.div>
@@ -240,14 +234,10 @@ export default function EmployeeDetailPage() {
         <TabsContent value="overview">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Goals Summary */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="aspora-card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Active KPIs</h3>
-                <Link to="/performance" className="text-sm text-primary hover:underline">View All</Link>
+                <Button variant="ghost" size="sm" className="text-sm text-primary hover:underline" onClick={() => setActiveTab('performance')}>View All</Button>
               </div>
               <div className="space-y-4">
                 {employeeGoals.length > 0 ? employeeGoals.slice(0, 3).map((goal) => (
@@ -265,15 +255,10 @@ export default function EmployeeDetailPage() {
             </motion.div>
 
             {/* Recent Documents */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="aspora-card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Recent Documents</h3>
-                <Button variant="outline" size="sm" className="gap-1 text-xs">
+                <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => setShowUploadDoc(true)}>
                   <Upload className="w-3 h-3" />
                   Upload
                 </Button>
@@ -296,7 +281,7 @@ export default function EmployeeDetailPage() {
                         <p className="text-xs text-muted-foreground">{doc.uploadDate}</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Download Started", description: `Downloading ${doc.name}...` })}>
                       <Download className="w-4 h-4" />
                     </Button>
                   </div>
@@ -305,12 +290,7 @@ export default function EmployeeDetailPage() {
             </motion.div>
 
             {/* Learning Progress */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="aspora-card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Learning Path</h3>
                 <Link to="/learning" className="text-sm text-primary hover:underline">View All</Link>
@@ -336,12 +316,7 @@ export default function EmployeeDetailPage() {
             </motion.div>
 
             {/* Review History */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="aspora-card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Review History</h3>
               </div>
@@ -378,12 +353,12 @@ export default function EmployeeDetailPage() {
             className="space-y-6"
           >
             {/* Upload Section */}
-            <div className="aspora-card border-dashed border-2 border-border bg-muted/20">
+            <div className="aspora-card border-dashed border-2 border-border bg-muted/20 cursor-pointer" onClick={() => setShowUploadDoc(true)}>
               <div className="text-center py-6">
                 <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="font-medium">Upload New Document</p>
                 <p className="text-sm text-muted-foreground mb-3">Drag and drop or click to browse</p>
-                <Button variant="outline">Choose File</Button>
+                <Button variant="outline" onClick={(e) => { e.stopPropagation(); setShowUploadDoc(true); }}>Choose File</Button>
               </div>
             </div>
 
@@ -433,7 +408,7 @@ export default function EmployeeDetailPage() {
                           )}>
                             {doc.status.charAt(0).toUpperCase() + doc.status.slice(1).replace('-', ' ')}
                           </span>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({ title: "Download Started", description: `Downloading ${doc.name}...` })}>
                             <Download className="w-4 h-4" />
                           </Button>
                         </div>
@@ -449,11 +424,7 @@ export default function EmployeeDetailPage() {
         <TabsContent value="performance">
           <div className="space-y-6">
             {/* Performance Overview */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="aspora-card">
               <h3 className="font-medium mb-4">Performance Summary</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-6 rounded-lg bg-muted/30">
@@ -475,15 +446,13 @@ export default function EmployeeDetailPage() {
             </motion.div>
 
             {/* Goals */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="aspora-card"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="aspora-card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">Goals & OKRs</h3>
-                <Button size="sm">Add Goal</Button>
+                <h3 className="font-medium">KPIs & Goals</h3>
+                <Button size="sm" className="gap-1" onClick={() => setShowAddGoal(true)}>
+                  <Plus className="w-3 h-3" />
+                  Add Goal
+                </Button>
               </div>
               <div className="space-y-4">
                 {employeeGoals.map((goal) => (
@@ -540,7 +509,9 @@ export default function EmployeeDetailPage() {
                     <h3 className="font-medium">{path.title}</h3>
                     <p className="text-sm text-muted-foreground">{path.description}</p>
                   </div>
-                  <Button variant="outline" size="sm">Continue</Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/learning">Continue</Link>
+                  </Button>
                 </div>
                 <div className="flex items-center gap-4 mb-3">
                   <div className="flex-1">
@@ -563,6 +534,281 @@ export default function EmployeeDetailPage() {
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={showEditProfile} onOpenChange={setShowEditProfile}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Profile — {employee.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Name</Label>
+                <Input className="mt-1" defaultValue={employee.name} />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input className="mt-1" defaultValue={employee.email} />
+              </div>
+            </div>
+            <div>
+              <Label>Job Title</Label>
+              <Input className="mt-1" defaultValue={employee.role} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Department</Label>
+                <Input className="mt-1" defaultValue={employee.department} />
+              </div>
+              <div>
+                <Label>Team</Label>
+                <Input className="mt-1" defaultValue={employee.team} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Location</Label>
+                <Input className="mt-1" defaultValue={employee.location} />
+              </div>
+              <div>
+                <Label>Level</Label>
+                <Input className="mt-1" defaultValue={employee.level} />
+              </div>
+            </div>
+            <div>
+              <Label>Manager</Label>
+              <Input className="mt-1" defaultValue={employee.manager} />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowEditProfile(false)}>Cancel</Button>
+            <Button onClick={() => { setShowEditProfile(false); toast({ title: "Profile Updated", description: `${employee.name}'s profile has been updated.` }); }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Goal Dialog */}
+      <Dialog open={showAddGoal} onOpenChange={setShowAddGoal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Goal for {employee.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Goal Title</Label>
+              <Input className="mt-1" placeholder="e.g. Complete Q2 deliverables" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea className="mt-1" placeholder="Describe the goal..." rows={2} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Metric Type</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="percentage">Percentage</SelectItem>
+                    <SelectItem value="currency">Currency</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Target Value</Label>
+                <Input className="mt-1" type="number" placeholder="100" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Weight (%)</Label>
+                <Input className="mt-1" type="number" placeholder="25" />
+              </div>
+              <div>
+                <Label>Due Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowAddGoal(false)}>Cancel</Button>
+            <Button onClick={() => { setShowAddGoal(false); toast({ title: "Goal Added", description: "New goal has been added successfully." }); }}>
+              Add Goal
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Document Dialog */}
+      <Dialog open={showUploadDoc} onOpenChange={setShowUploadDoc}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Document</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Document Name</Label>
+              <Input className="mt-1" placeholder="e.g. Performance Review Q1" />
+            </div>
+            <div>
+              <Label>Category</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select category..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="onboarding">Onboarding</SelectItem>
+                  <SelectItem value="performance">Performance</SelectItem>
+                  <SelectItem value="compensation">Compensation</SelectItem>
+                  <SelectItem value="training">Training</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="compliance">Compliance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-muted/20">
+              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Click to browse or drag and drop</p>
+              <p className="text-xs text-muted-foreground mt-1">PDF, DOC, XLS up to 10MB</p>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowUploadDoc(false)}>Cancel</Button>
+            <Button onClick={() => { setShowUploadDoc(false); toast({ title: "Document Uploaded", description: "Document has been uploaded successfully." }); }}>
+              Upload
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Role Change Dialog */}
+      <Dialog open={showRoleChange} onOpenChange={setShowRoleChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Role Change — {employee.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Current Role</Label>
+              <Input className="mt-1" defaultValue={employee.role} disabled />
+            </div>
+            <div>
+              <Label>New Role</Label>
+              <Input className="mt-1" placeholder="e.g. Staff Product Manager" />
+            </div>
+            <div>
+              <Label>New Level</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={employee.level} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="L3">L3</SelectItem>
+                  <SelectItem value="L4">L4</SelectItem>
+                  <SelectItem value="L5">L5</SelectItem>
+                  <SelectItem value="L6">L6</SelectItem>
+                  <SelectItem value="L7">L7</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Effective Date</Label>
+              <Input className="mt-1" type="date" />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowRoleChange(false)}>Cancel</Button>
+            <Button onClick={() => { setShowRoleChange(false); toast({ title: "Role Change Submitted", description: "Role change request has been submitted for approval." }); }}>
+              Submit Change
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Team Dialog */}
+      <Dialog open={showTransfer} onOpenChange={setShowTransfer}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Transfer Team — {employee.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Current Team</Label>
+              <Input className="mt-1" defaultValue={`${employee.department} — ${employee.team}`} disabled />
+            </div>
+            <div>
+              <Label>New Department</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="engineering">Engineering</SelectItem>
+                  <SelectItem value="product">Product</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="people">People</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>New Manager</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select manager..." /></SelectTrigger>
+                <SelectContent>
+                  {employees.filter(e => e.id !== employee.id).map(emp => (
+                    <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Effective Date</Label>
+              <Input className="mt-1" type="date" />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowTransfer(false)}>Cancel</Button>
+            <Button onClick={() => { setShowTransfer(false); toast({ title: "Transfer Submitted", description: "Team transfer request has been submitted." }); }}>
+              Submit Transfer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Start Offboarding Dialog */}
+      <Dialog open={showOffboarding} onOpenChange={setShowOffboarding}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Start Offboarding — {employee.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Reason</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select reason..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="resignation">Resignation</SelectItem>
+                  <SelectItem value="termination">Termination</SelectItem>
+                  <SelectItem value="retirement">Retirement</SelectItem>
+                  <SelectItem value="contract-end">Contract End</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Last Working Day</Label>
+              <Input className="mt-1" type="date" />
+            </div>
+            <div>
+              <Label>Notes</Label>
+              <Textarea className="mt-1" placeholder="Any additional notes..." rows={3} />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowOffboarding(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => { setShowOffboarding(false); toast({ title: "Offboarding Started", description: `Offboarding process initiated for ${employee.name}.` }); }}>
+              Start Offboarding
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
