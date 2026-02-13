@@ -21,6 +21,9 @@ import GenePage from "./pages/GenePage";
 import CoachPage from "./pages/CoachPage";
 import SettingsPage from "./pages/SettingsPage";
 import SurveysPage from "./pages/SurveysPage";
+import RecognitionPage from "./pages/RecognitionPage";
+import SlackIntegrationPage from "./pages/SlackIntegrationPage";
+import HRAdminPage from "./pages/HRAdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,11 +49,14 @@ const App = () => (
             <Route path="/surveys" element={<SurveysPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/learning" element={<LearningPage />} />
+            <Route path="/recognition" element={<RecognitionPage />} />
             <Route path="/governance" element={<GovernancePage />} />
             <Route path="/dashboards" element={<DashboardsPage />} />
             <Route path="/gene" element={<GenePage />} />
             <Route path="/coach" element={<CoachPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/slack" element={<SlackIntegrationPage />} />
+            <Route path="/settings/hr-admin" element={<HRAdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MainLayout>

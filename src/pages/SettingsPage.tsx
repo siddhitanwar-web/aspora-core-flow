@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   Settings,
   User,
@@ -149,6 +150,10 @@ export default function SettingsPage() {
             <Link2 className="w-3 h-3" />
             Integrations
           </TabsTrigger>
+          <TabsTrigger value="hr-admin" className="gap-1">
+            <Shield className="w-3 h-3" />
+            HR Admin
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -282,9 +287,14 @@ export default function SettingsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setConfiguring(integration.id)}
+                        onClick={() => integration.id === 'slack' ? undefined : setConfiguring(integration.id)}
+                        asChild={integration.id === 'slack'}
                       >
-                        Configure
+                        {integration.id === 'slack' ? (
+                          <Link to="/settings/slack">Configure</Link>
+                        ) : (
+                          <>Configure</>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -406,6 +416,16 @@ export default function SettingsPage() {
               )}
             </DialogContent>
           </Dialog>
+        </TabsContent>
+        <TabsContent value="hr-admin">
+          <div className="aspora-card text-center py-12">
+            <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">HR Administration</h3>
+            <p className="text-muted-foreground mb-6">Comprehensive HRMS configuration — organization, leave, performance, hiring, and security settings.</p>
+            <Button asChild>
+              <Link to="/settings/hr-admin">Open HR Admin Panel</Link>
+            </Button>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
