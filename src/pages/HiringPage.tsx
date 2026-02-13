@@ -56,6 +56,9 @@ export default function HiringPage() {
   const [showCreateRole, setShowCreateRole] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showOffer, setShowOffer] = useState<string | null>(null);
+  const [showCSVImport, setShowCSVImport] = useState(false);
+  const [showEmailTemplates, setShowEmailTemplates] = useState(false);
+  const [showScheduleInterview, setShowScheduleInterview] = useState(false);
   const { toast } = useToast();
 
   const filteredRoles = roles.filter(role =>
@@ -74,10 +77,24 @@ export default function HiringPage() {
         title="Hiring"
         description="Manage roles, candidates, and offers"
         actions={
-          <Button className="gap-2" onClick={() => setShowCreateRole(true)}>
-            <Plus className="w-4 h-4" />
-            Create Role
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setShowCSVImport(true)}>
+              <ArrowUpRight className="w-4 h-4" />
+              Import CSV
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => setShowEmailTemplates(true)}>
+              <MoreHorizontal className="w-4 h-4" />
+              Email Templates
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => setShowScheduleInterview(true)}>
+              <Clock className="w-4 h-4" />
+              Schedule Interview
+            </Button>
+            <Button className="gap-2" onClick={() => setShowCreateRole(true)}>
+              <Plus className="w-4 h-4" />
+              Create Role
+            </Button>
+          </div>
         }
       />
 
@@ -401,9 +418,27 @@ export default function HiringPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Salary Min ($)</Label>
+                <Input className="mt-1" type="number" placeholder="120000" />
+              </div>
+              <div>
+                <Label>Salary Max ($)</Label>
+                <Input className="mt-1" type="number" placeholder="180000" />
+              </div>
+            </div>
             <div>
               <Label>Job Description</Label>
               <Textarea className="mt-1" placeholder="Describe the role responsibilities..." rows={3} />
+            </div>
+            <div>
+              <Label>Requirements</Label>
+              <Textarea className="mt-1" placeholder="List key requirements, one per line..." rows={3} />
+            </div>
+            <div>
+              <Label>Interview Pipeline</Label>
+              <Input className="mt-1" placeholder="e.g. Phone Screen → Technical → System Design → Culture Fit" />
             </div>
           </div>
           <DialogFooter className="mt-4">
@@ -497,10 +532,6 @@ export default function HiringPage() {
                       <StatusBadge status={offer.status} />
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground mb-1">Approvers</p>
-                    <p className="text-sm text-foreground">{offer.approvers.join(', ')}</p>
-                  </div>
                 </div>
                 <DialogFooter className="mt-4">
                   <Button variant="outline" onClick={() => setShowOffer(null)}>Close</Button>
@@ -511,6 +542,118 @@ export default function HiringPage() {
               </>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={showCSVImport} onOpenChange={setShowCSVImport}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Candidates via CSV</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/30 transition-colors">
+              <ArrowUpRight className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="font-medium text-foreground">Drop CSV file here</p>
+              <p className="text-sm text-muted-foreground mt-1">or click to browse</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground mb-1">Expected columns:</p>
+              <p className="text-xs font-mono text-foreground">name, email, role, source, resume_url</p>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowCSVImport(false)}>Cancel</Button>
+            <Button onClick={() => { setShowCSVImport(false); toast({ title: "Import Started", description: "Processing CSV file. Candidates will appear shortly." }); }}>
+              Import
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Templates Dialog */}
+      <Dialog open={showEmailTemplates} onOpenChange={setShowEmailTemplates}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Email Templates</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            {[
+              { stage: 'Application Received', subject: 'Thank you for applying to {role}' },
+              { stage: 'Screening Invite', subject: 'Invitation to phone screen for {role}' },
+              { stage: 'Interview Invite', subject: 'Interview scheduled for {role}' },
+              { stage: 'Rejection', subject: 'Update on your application for {role}' },
+              { stage: 'Offer Letter', subject: 'Offer from Aspora — {role}' },
+            ].map(t => (
+              <div key={t.stage} className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{t.stage}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.subject}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => toast({ title: "Template Opened", description: `Editing "${t.stage}" template.` })}>Edit</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Interview Dialog */}
+      <Dialog open={showScheduleInterview} onOpenChange={setShowScheduleInterview}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Schedule Interview</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Candidate</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select candidate..." /></SelectTrigger>
+                <SelectContent>
+                  {candidates.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name} — {c.role}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Interview Type</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="phone">Phone Screen</SelectItem>
+                  <SelectItem value="technical">Technical Interview</SelectItem>
+                  <SelectItem value="system-design">System Design</SelectItem>
+                  <SelectItem value="culture">Culture Fit</SelectItem>
+                  <SelectItem value="hiring-manager">Hiring Manager Round</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+              <div>
+                <Label>Time</Label>
+                <Input className="mt-1" type="time" />
+              </div>
+            </div>
+            <div>
+              <Label>Interviewers</Label>
+              <Input className="mt-1" placeholder="e.g. Marcus Johnson, Sarah Chen" />
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground">📅 Calendar integration will check interviewer availability and send invites automatically.</p>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowScheduleInterview(false)}>Cancel</Button>
+            <Button onClick={() => { setShowScheduleInterview(false); toast({ title: "Interview Scheduled", description: "Calendar invites have been sent." }); }}>
+              Schedule
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
