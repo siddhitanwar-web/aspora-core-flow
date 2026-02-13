@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./components/layout/MainLayout";
 import HomePage from "./pages/HomePage";
 import HiringPage from "./pages/HiringPage";
+import RoleDetailPage from "./pages/RoleDetailPage";
+import CandidateDetailPage from "./pages/CandidateDetailPage";
 import CandidateBoardPage from "./pages/CandidateBoardPage";
 import PreOnboardingPage from "./pages/PreOnboardingPage";
 import EmployeesPage from "./pages/EmployeesPage";
@@ -32,9 +34,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/hiring" element={<HiringPage />} />
-            <Route path="/hiring/:id" element={<HiringPage />} />
             <Route path="/hiring/board" element={<CandidateBoardPage />} />
-            <Route path="/hiring/candidate/:id" element={<HiringPage />} />
+            <Route path="/hiring/candidate/:id" element={<CandidateDetailPage />} />
+            <Route path="/hiring/:id" element={<RoleDetailPage />} />
             <Route path="/preonboarding" element={<PreOnboardingPage />} />
             <Route path="/preonboarding/:candidateId" element={<PreOnboardingPage />} />
             <Route path="/employees" element={<EmployeesPage />} />
