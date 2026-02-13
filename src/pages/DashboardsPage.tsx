@@ -106,7 +106,12 @@ export default function DashboardsPage() {
         title="Dashboards"
         description="Executive insights and organizational health"
         actions={
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => {
+            const link = document.createElement('a');
+            link.download = 'aspora-report.csv';
+            link.href = 'data:text/csv;charset=utf-8,Metric,Value\nHeadcount,248\nOpen Roles,12\nTime to Hire,28 days\nOffer Accept Rate,87%';
+            link.click();
+          }}>
             Export Report <ArrowRight className="w-4 h-4" />
           </Button>
         }

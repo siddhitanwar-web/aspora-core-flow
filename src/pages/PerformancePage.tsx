@@ -11,27 +11,21 @@ import {
   CheckCircle2,
   AlertTriangle,
   Circle,
+  Sparkles,
+  MessageSquare,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
-import { goals, reviews, employees } from '@/data/mockData';
+import { kpis, reviews, employees } from '@/data/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0 },
-};
+import { KPITab } from '@/components/performance/KPITab';
+import { AIReviewTab } from '@/components/performance/AIReviewTab';
+import { MeetingNotesTab } from '@/components/performance/MeetingNotesTab';
+import { SurveysTab } from '@/components/performance/SurveysTab';
 
 export default function PerformancePage() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -45,12 +39,14 @@ export default function PerformancePage() {
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Performance"
-        description="Track goals, reviews, and team performance"
+        description="Track KPIs, reviews, and team performance"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Target className="w-4 h-4" />
-              Create Goal
+            <Button variant="outline" className="gap-2" asChild>
+              <Link to="/performance">
+                <Target className="w-4 h-4" />
+                Create KPI
+              </Link>
             </Button>
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
@@ -89,10 +85,22 @@ export default function PerformancePage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="goals">Goals & OKRs</TabsTrigger>
+          <TabsTrigger value="kpis">KPIs & Goals</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsTrigger value="ai-reviews" className="gap-1">
+            <Sparkles className="w-3 h-3" />
+            AI Reviews
+          </TabsTrigger>
+          <TabsTrigger value="meeting-notes" className="gap-1">
+            <MessageSquare className="w-3 h-3" />
+            1:1 Notes
+          </TabsTrigger>
+          <TabsTrigger value="surveys" className="gap-1">
+            <BarChart3 className="w-3 h-3" />
+            Surveys
+          </TabsTrigger>
           <TabsTrigger value="calibration">Calibration</TabsTrigger>
         </TabsList>
 
@@ -149,23 +157,33 @@ export default function PerformancePage() {
             >
               <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setActiveTab('kpis')}>
                   <Target className="w-4 h-4 text-primary" />
-                  View My Goals
+                  View KPIs & Goals
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setActiveTab('reviews')}>
                   <Users className="w-4 h-4 text-accent" />
                   Team Reviews
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-success" />
-                  Performance Reports
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setActiveTab('ai-reviews')}>
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  AI Review Generator
+                </Button>
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setActiveTab('surveys')}>
+                  <BarChart3 className="w-4 h-4 text-accent" />
+                  eNPS Surveys
+                </Button>
+                <Button variant="outline" className="w-full justify-start gap-2" asChild>
+                  <Link to="/dashboards">
+                    <TrendingUp className="w-4 h-4 text-success" />
+                    Performance Reports
+                  </Link>
                 </Button>
               </div>
             </motion.div>
           </div>
 
-          {/* Goals At Risk */}
+          {/* KPIs At Risk */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,39 +193,35 @@ export default function PerformancePage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-warning" />
-                <h2 className="text-lg font-semibold text-foreground">Goals At Risk</h2>
+                <h2 className="text-lg font-semibold text-foreground">KPIs At Risk</h2>
               </div>
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
+              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setActiveTab('kpis')}>
                 View all <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
             <div className="space-y-3">
-              {goals.filter(g => g.status === 'at-risk').map((goal) => {
-                const employee = employees.find(e => e.id === goal.employeeId);
+              {kpis.filter(g => g.status === 'at-risk').map((kpi) => {
+                const employee = employees.find(e => e.id === kpi.employeeId);
                 return (
-                  <div key={goal.id} className="p-4 rounded-lg bg-warning/5 border border-warning/20">
+                  <div key={kpi.id} className="p-4 rounded-lg bg-warning/5 border border-warning/20">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         {employee && (
-                          <img
-                            src={employee.avatar}
-                            alt={employee.name}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
+                          <img src={employee.avatar} alt={employee.name} className="w-8 h-8 rounded-full object-cover" />
                         )}
                         <div>
-                          <p className="font-medium text-foreground">{goal.title}</p>
-                          <p className="text-sm text-muted-foreground">{employee?.name} • Due {goal.dueDate}</p>
+                          <p className="font-medium text-foreground">{kpi.title}</p>
+                          <p className="text-sm text-muted-foreground">{employee?.name} • Due {kpi.dueDate}</p>
                         </div>
                       </div>
-                      <StatusBadge status={goal.status} />
+                      <StatusBadge status={kpi.status} />
                     </div>
                     <div className="mt-3">
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium text-foreground">{goal.progress}%</span>
+                        <span className="font-medium text-foreground">{kpi.progress}%</span>
                       </div>
-                      <ProgressBar value={goal.progress} variant="warning" size="sm" />
+                      <ProgressBar value={kpi.progress} variant="warning" size="sm" />
                     </div>
                   </div>
                 );
@@ -216,65 +230,18 @@ export default function PerformancePage() {
           </motion.div>
         </TabsContent>
 
-        <TabsContent value="goals">
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="space-y-4"
-          >
-            {goals.map((goal) => {
-              const employee = employees.find(e => e.id === goal.employeeId);
-              return (
-                <motion.div key={goal.id} variants={item} className="aspora-card">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      {employee && (
-                        <img
-                          src={employee.avatar}
-                          alt={employee.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-foreground">{goal.title}</h3>
-                          <StatusBadge status={goal.type} />
-                          <StatusBadge status={goal.status} />
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-0.5">{goal.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {employee?.name} • Due {goal.dueDate}
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm">View</Button>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span className="font-medium text-foreground">{goal.progress}%</span>
-                    </div>
-                    <ProgressBar
-                      value={goal.progress}
-                      variant={goal.status === 'at-risk' ? 'warning' : goal.status === 'completed' ? 'success' : 'primary'}
-                    />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+        <TabsContent value="kpis">
+          <KPITab />
         </TabsContent>
 
         <TabsContent value="reviews">
           <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="space-y-3"
           >
             {reviews.map((review) => (
-              <motion.div key={review.id} variants={item} className="aspora-card-hover">
+              <div key={review.id} className="aspora-card-hover">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -284,6 +251,9 @@ export default function PerformancePage() {
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-foreground">{review.employeeName}</h3>
                         <StatusBadge status={review.status} />
+                        {review.aiStatus === 'ai-draft' && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-warning/10 text-warning font-medium">AI Draft</span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {review.cycle} • Reviewer: {review.reviewerName}
@@ -295,14 +265,26 @@ export default function PerformancePage() {
                       <p className="text-sm text-muted-foreground">Due</p>
                       <p className="text-sm font-medium text-foreground">{review.dueDate}</p>
                     </div>
-                    <Button size="sm">
+                    <Button size="sm" onClick={() => setActiveTab('ai-reviews')}>
                       {review.status === 'pending' ? 'Start' : 'Continue'}
                     </Button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </motion.div>
+        </TabsContent>
+
+        <TabsContent value="ai-reviews">
+          <AIReviewTab />
+        </TabsContent>
+
+        <TabsContent value="meeting-notes">
+          <MeetingNotesTab />
+        </TabsContent>
+
+        <TabsContent value="surveys">
+          <SurveysTab />
         </TabsContent>
 
         <TabsContent value="calibration">
