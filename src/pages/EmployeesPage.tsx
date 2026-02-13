@@ -19,6 +19,10 @@ import { StatCard } from '@/components/common/StatCard';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { employees, dashboardStats } from '@/data/mockData';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 const container = {
   hidden: { opacity: 0 },
@@ -36,6 +40,9 @@ const item = {
 export default function EmployeesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const { toast } = useToast();
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,7 +58,7 @@ export default function EmployeesPage() {
         title="Employees"
         description="Manage your workforce directory"
         actions={
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddEmployee(true)}>
             <Plus className="w-4 h-4" />
             Add Employee
           </Button>
@@ -119,7 +126,7 @@ export default function EmployeesPage() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setShowFilters(true)}>
             <Filter className="w-4 h-4" />
             Filters
           </Button>
@@ -243,6 +250,141 @@ export default function EmployeesPage() {
           ))}
         </motion.div>
       )}
+
+      {/* Add Employee Dialog */}
+      <Dialog open={showAddEmployee} onOpenChange={setShowAddEmployee}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Employee</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>First Name</Label>
+                <Input className="mt-1" placeholder="John" />
+              </div>
+              <div>
+                <Label>Last Name</Label>
+                <Input className="mt-1" placeholder="Doe" />
+              </div>
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input className="mt-1" type="email" placeholder="john.doe@aspora.io" />
+            </div>
+            <div>
+              <Label>Role / Job Title</Label>
+              <Input className="mt-1" placeholder="e.g. Software Engineer" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Department</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="engineering">Engineering</SelectItem>
+                    <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="product">Product</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="people">People</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Level</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="L2">L2 - Junior</SelectItem>
+                    <SelectItem value="L3">L3 - Mid</SelectItem>
+                    <SelectItem value="L4">L4 - Senior</SelectItem>
+                    <SelectItem value="L5">L5 - Staff</SelectItem>
+                    <SelectItem value="L6">L6 - Principal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Location</Label>
+                <Input className="mt-1" placeholder="e.g. San Francisco, CA" />
+              </div>
+              <div>
+                <Label>Start Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+            </div>
+            <div>
+              <Label>Manager</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select manager..." /></SelectTrigger>
+                <SelectContent>
+                  {employees.filter(e => e.level >= 'L5').map(emp => (
+                    <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowAddEmployee(false)}>Cancel</Button>
+            <Button onClick={() => { setShowAddEmployee(false); toast({ title: "Employee Added", description: "New employee has been added successfully." }); }}>
+              Add Employee
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filters Dialog */}
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filter Employees</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Department</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All departments" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {departments.map(d => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All statuses" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="onboarding">Onboarding</SelectItem>
+                  <SelectItem value="offboarding">Offboarding</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Location</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All locations" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="sf">San Francisco, CA</SelectItem>
+                  <SelectItem value="ny">New York, NY</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowFilters(false)}>Reset</Button>
+            <Button onClick={() => setShowFilters(false)}>Apply Filters</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

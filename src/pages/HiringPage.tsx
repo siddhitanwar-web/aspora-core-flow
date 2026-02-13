@@ -23,6 +23,11 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { roles, candidates, offers, dashboardStats } from '@/data/mockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 const container = {
   hidden: { opacity: 0 },
@@ -48,6 +53,10 @@ const pipelineStages = [
 export default function HiringPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('roles');
+  const [showCreateRole, setShowCreateRole] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showOffer, setShowOffer] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const filteredRoles = roles.filter(role =>
     role.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,7 +74,7 @@ export default function HiringPage() {
         title="Hiring"
         description="Manage roles, candidates, and offers"
         actions={
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowCreateRole(true)}>
             <Plus className="w-4 h-4" />
             Create Role
           </Button>
@@ -144,7 +153,7 @@ export default function HiringPage() {
             className="pl-10"
           />
         </div>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" onClick={() => setShowFilters(true)}>
           <Filter className="w-4 h-4" />
           Filters
         </Button>
@@ -289,7 +298,7 @@ export default function HiringPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button size="sm">View Offer</Button>
+                      <Button size="sm" onClick={() => setShowOffer(offer.id)}>View Offer</Button>
                       <Button size="sm" variant="outline">
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
@@ -306,6 +315,204 @@ export default function HiringPage() {
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Create Role Dialog */}
+      <Dialog open={showCreateRole} onOpenChange={setShowCreateRole}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New Role</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Job Title</Label>
+              <Input className="mt-1" placeholder="e.g. Senior Frontend Engineer" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Department</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="engineering">Engineering</SelectItem>
+                    <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="product">Product</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="people">People</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Team</Label>
+                <Input className="mt-1" placeholder="e.g. Frontend" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Location</Label>
+                <Input className="mt-1" placeholder="e.g. Remote" />
+              </div>
+              <div>
+                <Label>Level</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="L2">L2 - Junior</SelectItem>
+                    <SelectItem value="L3">L3 - Mid</SelectItem>
+                    <SelectItem value="L4">L4 - Senior</SelectItem>
+                    <SelectItem value="L5">L5 - Staff</SelectItem>
+                    <SelectItem value="L6">L6 - Principal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Employment Type</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Priority</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Hiring Manager</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="marcus">Marcus Johnson</SelectItem>
+                  <SelectItem value="sarah">Sarah Chen</SelectItem>
+                  <SelectItem value="james">James Wilson</SelectItem>
+                  <SelectItem value="david">David Kim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Job Description</Label>
+              <Textarea className="mt-1" placeholder="Describe the role responsibilities..." rows={3} />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowCreateRole(false)}>Cancel</Button>
+            <Button onClick={() => { setShowCreateRole(false); toast({ title: "Role Created", description: "New role has been created successfully." }); }}>
+              Create Role
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filters Dialog */}
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filter Results</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Department</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All departments" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="engineering">Engineering</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="product">Product</SelectItem>
+                  <SelectItem value="sales">Sales</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All statuses" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="on-hold">On Hold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Priority</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="All priorities" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowFilters(false)}>Reset</Button>
+            <Button onClick={() => setShowFilters(false)}>Apply Filters</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Offer Dialog */}
+      <Dialog open={!!showOffer} onOpenChange={() => setShowOffer(null)}>
+        <DialogContent className="max-w-lg">
+          {showOffer && (() => {
+            const offer = offers.find(o => o.id === showOffer);
+            if (!offer) return null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Offer Details — {offer.candidateName}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground">Role</p>
+                      <p className="font-medium text-foreground">{offer.role}</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground">Salary</p>
+                      <p className="font-medium text-foreground">${offer.salary.toLocaleString()}/year</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground">Start Date</p>
+                      <p className="font-medium text-foreground">{offer.startDate}</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/30">
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <StatusBadge status={offer.status} />
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/30">
+                    <p className="text-xs text-muted-foreground mb-1">Approvers</p>
+                    <p className="text-sm text-foreground">{offer.approvers.join(', ')}</p>
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={() => setShowOffer(null)}>Close</Button>
+                  <Button onClick={() => { setShowOffer(null); toast({ title: "Offer Approved", description: `Offer for ${offer.candidateName} has been approved.` }); }}>
+                    Approve Offer
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

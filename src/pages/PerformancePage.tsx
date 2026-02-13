@@ -26,9 +26,18 @@ import { KPITab } from '@/components/performance/KPITab';
 import { AIReviewTab } from '@/components/performance/AIReviewTab';
 import { MeetingNotesTab } from '@/components/performance/MeetingNotesTab';
 import { SurveysTab } from '@/components/performance/SurveysTab';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 export default function PerformancePage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCreateKPI, setShowCreateKPI] = useState(false);
+  const [showStartCycle, setShowStartCycle] = useState(false);
+  const { toast } = useToast();
 
   const cycleProgress = 68;
   const completedReviews = reviews.filter(r => r.status === 'completed').length;
@@ -42,13 +51,11 @@ export default function PerformancePage() {
         description="Track KPIs, reviews, and team performance"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2" asChild>
-              <Link to="/performance">
-                <Target className="w-4 h-4" />
-                Create KPI
-              </Link>
+            <Button variant="outline" className="gap-2" onClick={() => setShowCreateKPI(true)}>
+              <Target className="w-4 h-4" />
+              Create KPI
             </Button>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setShowStartCycle(true)}>
               <Plus className="w-4 h-4" />
               Start Review Cycle
             </Button>
@@ -302,6 +309,141 @@ export default function PerformancePage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Create KPI Dialog */}
+      <Dialog open={showCreateKPI} onOpenChange={setShowCreateKPI}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New KPI</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>KPI Title</Label>
+              <Input className="mt-1" placeholder="e.g. Increase customer retention by 15%" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea className="mt-1" placeholder="Describe the KPI objective..." rows={2} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Metric Type</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="percentage">Percentage</SelectItem>
+                    <SelectItem value="currency">Currency</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Target Value</Label>
+                <Input className="mt-1" type="number" placeholder="100" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Weight (%)</Label>
+                <Input className="mt-1" type="number" placeholder="25" />
+              </div>
+              <div>
+                <Label>Due Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Owner</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select owner..." /></SelectTrigger>
+                  <SelectContent>
+                    {employees.map(emp => (
+                      <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Type</Label>
+                <Select>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="team">Team</SelectItem>
+                    <SelectItem value="company">Company</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowCreateKPI(false)}>Cancel</Button>
+            <Button onClick={() => { setShowCreateKPI(false); toast({ title: "KPI Created", description: "New KPI has been created successfully." }); }}>
+              Create KPI
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Start Review Cycle Dialog */}
+      <Dialog open={showStartCycle} onOpenChange={setShowStartCycle}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Start Review Cycle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Cycle Name</Label>
+              <Input className="mt-1" placeholder="e.g. Q2 2024 Performance Review" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Start Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+              <div>
+                <Label>End Date</Label>
+                <Input className="mt-1" type="date" />
+              </div>
+            </div>
+            <div>
+              <Label>Review Type</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="quarterly">Quarterly Review</SelectItem>
+                  <SelectItem value="annual">Annual Review</SelectItem>
+                  <SelectItem value="360">360° Review</SelectItem>
+                  <SelectItem value="probation">Probation Review</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Participants</Label>
+              <Select>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select scope..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Employees</SelectItem>
+                  <SelectItem value="engineering">Engineering Only</SelectItem>
+                  <SelectItem value="product">Product Only</SelectItem>
+                  <SelectItem value="design">Design Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Instructions</Label>
+              <Textarea className="mt-1" placeholder="Optional instructions for reviewers..." rows={2} />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowStartCycle(false)}>Cancel</Button>
+            <Button onClick={() => { setShowStartCycle(false); toast({ title: "Review Cycle Started", description: "New review cycle has been initiated." }); }}>
+              Start Cycle
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

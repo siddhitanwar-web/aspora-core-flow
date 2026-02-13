@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -20,6 +21,7 @@ import { StatCard } from '@/components/common/StatCard';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { dashboardStats, roles, candidates, reviews, approvals } from '@/data/mockData';
+import { useToast } from '@/hooks/use-toast';
 
 const container = {
   hidden: { opacity: 0 },
@@ -42,6 +44,8 @@ const quickActions = [
 ];
 
 export default function HomePage() {
+  const { toast } = useToast();
+
   const recentActivity = [
     { type: 'offer', message: 'Offer sent to Alexandra Foster', time: '2 hours ago', icon: FileText },
     { type: 'hire', message: 'Kevin Park completed onboarding', time: '5 hours ago', icon: CheckCircle2 },
@@ -169,7 +173,9 @@ export default function HomePage() {
                   <StatusBadge status={approval.priority} />
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <Button size="sm" className="flex-1 h-8">Approve</Button>
+                  <Button size="sm" className="flex-1 h-8" onClick={() => toast({ title: "Approved", description: `"${approval.title}" has been approved.` })}>
+                    Approve
+                  </Button>
                   <Button size="sm" variant="outline" className="flex-1 h-8" asChild>
                     <Link to="/governance">Review</Link>
                   </Button>
